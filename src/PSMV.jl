@@ -393,7 +393,8 @@ function test_perf()
 
 
 
-  return 0
+
+  return 1
 end
 
 
