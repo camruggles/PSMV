@@ -44,6 +44,12 @@ end
 import Base.size
 size(M::MultithreadedMatVec,inputs...) = size(M.A,inputs...)
 
+import Base.getindex
+getindex(M::MultithreadedMatVec,inputs...) = getindex(M.A, inputs...)
+
+import Base.setindex!
+setindex!(M::MultithreadedMatVec,inputs...) = setindex!(M.A, inputs...)
+
 # Julia's built in multiplication operations are called with
 # A_mul_B!
 # Ac_mul_B!
@@ -194,7 +200,11 @@ function A_mul_B!(C::StridedVecOrMat, M::MultithreadedMatVec, B::StridedVecOrMat
   A_mul_B!(one(T), M, B, zero(T), C)
 end
 
+"""
 
+Multithreaded Sparse Matrix Vector Multiply using Transpose matrix for reduced communication.
+
+"""
 
 mutable struct MultithreadedTransMatVec{T,I} <: AbstractArray{T,2}
   A::SparseMatrixCSC{T,I}
@@ -221,7 +231,23 @@ end
 
 size(M::MultithreadedTransMatVec,inputs...) = size(M.A,inputs...)
 
+import Base.getindex
+getindex(C::MultithreadedTransMatVec, inputs...) = getindex(C.A, inputs...)
 
+#import Base.linearindexing
+#linearindexing(C::MultithreadedTransMatVec) = Base.LinearSlow()
+import Base.setindex!
+function setindex!(C::MultithreadedTransMatVec{Tv, Ti}, _v, _i::Int, _j::Int) where {Tv, Ti<:Integer}
+  v = convert(Tv, _v)
+  i = convert(Ti, _i)
+  j = convert(Ti, _j)
+  if !((1 <= i <= C.A.m) & (1 <= j <= C.A.n))
+      throw(BoundsError(C.A, (i,j)))
+  end
+
+  setindex!(C.A, v, i, j)
+  setindex!(C.Q, v, j, i)
+end
  
 
 function internal_loop_mult_opt(C,B,nzv,rv,colptr,i1,i2,α::Number)
@@ -268,7 +294,7 @@ end
 
 
 function test_perf()
-  n = 2*10^4
+  n = 2*10^5
   println("Constructing Sparse Matrix")
   @time A = sprandn(n,n,100/n); # create a fairly dense sparse matrix.
   @time Q = A'
@@ -342,14 +368,14 @@ function test_perf()
   @time C*x
 
 
-  C = MultithreadedTransMatVec(A, Q, 8)
-  println("Cx - 8")
+  C = MultithreadedTransMatVec(A, Q, 6)
+  println("Cx - 6")
   @time C*x
   @time C*x
   @time C*x
 
-  C = MultithreadedTransMatVec(A, Q, 16)
-  println("Cx - 16")
+  C = MultithreadedTransMatVec(A, Q, 12)
+  println("Cx - 12")
   @time C*x
   @time C*x
   @time C*x
