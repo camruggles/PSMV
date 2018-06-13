@@ -223,7 +223,7 @@ mutable struct MultithreadedTransMatVec{T,I} <: AbstractArray{T,2}
 end
 
 
-function MultithreadedTransMatVec(A::SparseMatrixCSC, Q::SparseMatrixCSC, k::Int64)
+function MultithreadedTransMatVec(A::SparseMatrixCSC, Q::SparseMatrixCSC, k::Int)
   MultithreadedTransMatVec(A, Q, simple_partition(A.n,k))
 end
 
