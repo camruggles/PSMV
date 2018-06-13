@@ -37,12 +37,13 @@ mutable struct MultithreadedMatVec{T,I} <: AbstractArray{T,2}
   A::SparseMatrixCSC{T,I}
   regions::Vector{Int}
 
-  MultithreadedMatVec(A::SparseMatrixCSC) = MultithreadedMatVec(A,Threads.nthreads())
-  MultithreadedMatVec(A::SparseMatrixCSC, k::Int) = MultithreadedMatVec(A, simple_partition(A.n,k))
   function MultithreadedMatVec(A::SparseMatrixCSC{T,I}, regions::Vector{Int}) where {T,I}
     new{T,I}(A, regions)
   end
 end
+
+MultithreadedMatVec(A::SparseMatrixCSC) = MultithreadedMatVec(A,Threads.nthreads())
+MultithreadedMatVec(A::SparseMatrixCSC, k::Int) = MultithreadedMatVec(A, simple_partition(A.n,k))
 
 import Base.size
 size(M::MultithreadedMatVec,inputs...) = size(M.A,inputs...)

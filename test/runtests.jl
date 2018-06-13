@@ -11,10 +11,9 @@ n = 2*10^5
 
 A = sprand(n, n, 0.0005)
 x = rand(n)
-C = MultithreadedTransMatVec(A, Q)
-@test norm(A*x - C*x) < 1e-10
+C = PSMV.MultithreadedTransMatVec(A, A')
+@show @test norm(A*x - C*x) < 1e-10
 
-C = MultithreadedMatVec(A)
-@test norm(A*x - C*x) < 1e-10
-
+C = PSMV.MultithreadedMatVec(A, 1)
+@show @test norm(A*x - C*x) < 1e-10
 
