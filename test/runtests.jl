@@ -9,7 +9,7 @@ end
 
 n = 2*10^5
 
-A = sprand(n, n, 0.05)
+A = sprand(n, n, 0.0005)
 x = rand(n)
 C = MultithreadedTransMatVec(A, Q)
 @test norm(A*x - C*x) < 1e-10
