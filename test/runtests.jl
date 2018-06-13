@@ -6,4 +6,15 @@ else
 end
 
 # write your own tests here
-@test 1 == 2
+
+n = 2*10^5
+
+A = sprand(n, n, 0.05)
+x = rand(n)
+C = MultithreadedTransMatVec(A, Q)
+@test norm(A*x - C*x) < 1e-10
+
+C = MultithreadedMatVec(A)
+@test norm(A*x - C*x) < 1e-10
+
+
