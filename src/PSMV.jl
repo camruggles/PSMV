@@ -4,8 +4,6 @@ module PSMV
 
 using Iterators
 
-
-
 #simple_partition(n::Int, k::Int) = push!(map(first, partition(1:n,floor(Int,n/k))),n+1)
 function simple_partition(n::Int,k::Int)
   rval = ones(Int,k+1)
