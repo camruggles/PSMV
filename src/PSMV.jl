@@ -295,10 +295,10 @@ end
 
 
 
-function test_perf()
-  n = 2*10^5
+function test_perf(n::Int)
   println("Constructing Sparse Matrix")
   @time A = sprandn(n,n,100/n); # create a fairly dense sparse matrix.
+  println("Constructing Transpose")
   @time Q = A'
 
   x = randn(n);
